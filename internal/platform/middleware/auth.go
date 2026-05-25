@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/sabih15/TeleOpServer/internal/auth"
-	"github.com/sabih15/TeleOpServer/internal/config"
+	"github.com/sabih15/TeleOpServer/internal/platform/config"
 )
 
 type contextKey string

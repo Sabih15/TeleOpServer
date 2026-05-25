@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/sabih15/TeleOpServer/internal/middleware"
+	"github.com/sabih15/TeleOpServer/internal/platform/middleware"
 )
 
 type Handler struct {

@@ -1,8 +1,7 @@
 package database
 
 import (
-	"github.com/sabih15/TeleOpServer/internal/config"
-	"github.com/sabih15/TeleOpServer/internal/domain/user"
+	"github.com/sabih15/TeleOpServer/internal/platform/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -12,10 +11,6 @@ import (
 func NewPostgres(cfg *config.Config) (*gorm.DB, error) {
 	db, err := gorm.Open(postgres.Open(cfg.Database.DSN), &gorm.Config{})
 	if err != nil {
-		return nil, err
-	}
-
-	if err := db.AutoMigrate(&user.User{}); err != nil {
 		return nil, err
 	}
 

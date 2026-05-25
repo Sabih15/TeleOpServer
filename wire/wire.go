@@ -6,19 +6,17 @@ package wire
 
 import (
 	"github.com/google/wire"
-	"github.com/sabih15/TeleOpServer/internal/config"
-	"github.com/sabih15/TeleOpServer/internal/database"
-	"github.com/sabih15/TeleOpServer/internal/domain/user"
-	"github.com/sabih15/TeleOpServer/internal/server"
+	"github.com/sabih15/TeleOpServer/internal/modules/user"
+	"github.com/sabih15/TeleOpServer/internal/platform/config"
+	"github.com/sabih15/TeleOpServer/internal/platform/database"
+	"github.com/sabih15/TeleOpServer/internal/platform/server"
 )
 
 func InitializeApp() (*server.Server, error) {
 	wire.Build(
 		config.Load,
 		database.NewPostgres,
-		user.NewRepository,
-		user.NewService,
-		user.NewHandler,
+		user.ProviderSet,
 		server.NewServer,
 	)
 	return nil, nil

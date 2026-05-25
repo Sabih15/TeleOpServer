@@ -6,9 +6,9 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
-	"github.com/sabih15/TeleOpServer/internal/config"
-	"github.com/sabih15/TeleOpServer/internal/domain/user"
-	appmiddleware "github.com/sabih15/TeleOpServer/internal/middleware"
+	"github.com/sabih15/TeleOpServer/internal/modules/user"
+	"github.com/sabih15/TeleOpServer/internal/platform/config"
+	appmiddleware "github.com/sabih15/TeleOpServer/internal/platform/middleware"
 	httpswagger "github.com/swaggo/http-swagger"
 
 	_ "github.com/sabih15/TeleOpServer/docs" // registers the generated swagger spec

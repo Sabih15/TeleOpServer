@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"github.com/sabih15/TeleOpServer/internal/auth"
-	"github.com/sabih15/TeleOpServer/internal/config"
+	"github.com/sabih15/TeleOpServer/internal/platform/config"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
