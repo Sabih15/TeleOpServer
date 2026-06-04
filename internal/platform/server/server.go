@@ -6,7 +6,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
-	"github.com/sabih15/TeleOpServer/internal/modules/user"
 	"github.com/sabih15/TeleOpServer/internal/platform/config"
 	appmiddleware "github.com/sabih15/TeleOpServer/internal/platform/middleware"
 	httpswagger "github.com/swaggo/http-swagger"
@@ -19,36 +18,21 @@ type Server struct {
 	cfg    *config.Config
 }
 
-// NewServer wires the Chi router, registers all middleware and routes, and returns a ready Server.
-// Wire injects *config.Config and *user.Handler automatically.
-// To refresh Swagger docs after editing handler annotations: swag init -g cmd/api/main.go -o docs
-func NewServer(cfg *config.Config, userHandler *user.Handler) *Server {
+func NewBaseRouter() *chi.Mux {
 	r := chi.NewRouter()
 
 	r.Use(chimiddleware.Recoverer)
 	r.Use(chimiddleware.RequestID)
 	r.Use(appmiddleware.RequestLogger)
 
-	// Swagger UI — visit /swagger/index.html
 	r.Get("/swagger/*", httpswagger.WrapHandler)
-
-	// Redirect root to Swagger UI
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/swagger/index.html", http.StatusMovedPermanently)
 	})
+	return r
+}
 
-	r.Route("/api/v1", func(r chi.Router) {
-		// Public routes
-		r.Post("/auth/register", userHandler.Register)
-		r.Post("/auth/login", userHandler.Login)
-
-		// Protected routes — JWT required
-		r.Group(func(r chi.Router) {
-			r.Use(appmiddleware.Auth(cfg))
-			r.Get("/users/me", userHandler.GetProfile)
-		})
-	})
-
+func NewServer(cfg *config.Config, r *chi.Mux) *Server {
 	return &Server{router: r, cfg: cfg}
 }
 

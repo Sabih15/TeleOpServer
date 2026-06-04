@@ -28,5 +28,6 @@ func RegisterRoutes(r chi.Router, cfg *config.Config, h *Handler) {
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.Auth(cfg))
 		r.Get("/users/me", h.GetProfile)
+		r.Delete("/users/me", h.Delete)
 	})
 }

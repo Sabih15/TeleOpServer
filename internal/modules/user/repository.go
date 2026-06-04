@@ -7,8 +7,9 @@ import (
 )
 
 // Repository is the interface — equivalent to IUserRepository in .NET.
-type Repository interface {
+type IRepository interface {
 	Create(ctx context.Context, u *User) error
+	Delete(ctx context.Context, id uint) error
 	FindByEmail(ctx context.Context, email string) (*User, error)
 	FindByID(ctx context.Context, id uint) (*User, error)
 }
@@ -18,12 +19,16 @@ type repository struct {
 }
 
 // NewRepository is the constructor — Wire injects *gorm.DB automatically.
-func NewRepository(db *gorm.DB) Repository {
+func NewRepository(db *gorm.DB) IRepository {
 	return &repository{db: db}
 }
 
 func (r *repository) Create(ctx context.Context, u *User) error {
 	return r.db.WithContext(ctx).Create(u).Error
+}
+
+func (r *repository) Delete(ctx context.Context, id uint) error {
+	return r.db.WithContext(ctx).Delete(&User{}, id).Error
 }
 
 func (r *repository) FindByEmail(ctx context.Context, email string) (*User, error) {

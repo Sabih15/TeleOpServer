@@ -17,6 +17,7 @@ func InitializeApp() (*server.Server, error) {
 		config.Load,
 		database.NewPostgres,
 		user.ProviderSet,
+		provideRouter,
 		server.NewServer,
 	)
 	return nil, nil

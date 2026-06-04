@@ -11,19 +11,20 @@ import (
 )
 
 // Service is the interface — equivalent to IUserService in .NET.
-type Service interface {
+type IService interface {
 	Register(ctx context.Context, req RegisterRequest) (*UserResponse, error)
 	Login(ctx context.Context, req LoginRequest) (*LoginResponse, error)
+	Delete(ctx context.Context, userID uint) error
 	GetProfile(ctx context.Context, userID uint) (*UserResponse, error)
 }
 
 type service struct {
-	repo Repository
+	repo IRepository
 	cfg  *config.Config
 }
 
 // NewService is the constructor — Wire injects Repository and *config.Config.
-func NewService(repo Repository, cfg *config.Config) Service {
+func NewService(repo IRepository, cfg *config.Config) IService {
 	return &service{repo: repo, cfg: cfg}
 }
 
@@ -65,6 +66,10 @@ func (s *service) Login(ctx context.Context, req LoginRequest) (*LoginResponse, 
 	}
 
 	return &LoginResponse{Token: token}, nil
+}
+
+func (s *service) Delete(ctx context.Context, userID uint) error {
+	return s.repo.Delete(ctx, userID)
 }
 
 func (s *service) GetProfile(ctx context.Context, userID uint) (*UserResponse, error) {

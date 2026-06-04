@@ -8,10 +8,10 @@ import (
 )
 
 type Handler struct {
-	svc Service
+	svc IService
 }
 
-func NewHandler(svc Service) *Handler {
+func NewHandler(svc IService) *Handler {
 	return &Handler{svc: svc}
 }
 
@@ -63,6 +63,23 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJSON(w, http.StatusOK, resp)
+}
+
+// Delete godoc
+// @Summary      Delete authenticated user's account
+// @Tags         users
+// @Security     BearerAuth
+// @Success      204
+// @Failure      401 {object} map[string]string
+// @Router       /api/v1/users/me [delete]
+func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.UserIDFromContext(r.Context())
+	if err := h.svc.Delete(r.Context(), userID); err != nil {
+		writeError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
 // GetProfile godoc

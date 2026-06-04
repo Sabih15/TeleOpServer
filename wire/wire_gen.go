@@ -27,6 +27,7 @@ func InitializeApp() (*server.Server, error) {
 	repository := user.NewRepository(db)
 	service := user.NewService(repository, configConfig)
 	handler := user.NewHandler(service)
-	serverServer := server.NewServer(configConfig, handler)
+	mux := provideRouter(configConfig, handler)
+	serverServer := server.NewServer(configConfig, mux)
 	return serverServer, nil
 }
