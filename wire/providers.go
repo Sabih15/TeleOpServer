@@ -10,6 +10,7 @@ import (
 	tocommands "github.com/sabih15/TeleOpServer/internal/modules/TOCommands"
 	usermod "github.com/sabih15/TeleOpServer/internal/modules/user"
 	"github.com/sabih15/TeleOpServer/internal/platform/config"
+	"github.com/sabih15/TeleOpServer/internal/platform/mqttclient"
 	"github.com/sabih15/TeleOpServer/internal/platform/server"
 	"gorm.io/gorm"
 )
@@ -28,7 +29,7 @@ func MigrateAll(db *gorm.DB) error {
 
 // provideRouter runs migrations then builds the fully configured Chi router.
 // Wire injects *gorm.DB automatically from database.NewPostgres.
-func provideRouter(cfg *config.Config, db *gorm.DB, userHandler *usermod.Handler, cmdHandler *tocommands.Handler) (*chi.Mux, error) {
+func provideRouter(cfg *config.Config, db *gorm.DB, mqtt *mqttclient.Client, userHandler *usermod.Handler, cmdHandler *tocommands.Handler) (*chi.Mux, error) {
 	if err := MigrateAll(db); err != nil {
 		return nil, fmt.Errorf("migrations failed: %w", err)
 	}

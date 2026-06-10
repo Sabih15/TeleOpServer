@@ -11,6 +11,7 @@ type Config struct {
 	Server   ServerConfig
 	Database DatabaseConfig
 	JWT      JWTConfig
+	MQTT     MQTTConfig
 }
 
 type ServerConfig struct {
@@ -24,6 +25,13 @@ type DatabaseConfig struct {
 type JWTConfig struct {
 	Secret      string
 	ExpiryHours int
+}
+
+type MQTTConfig struct {
+	Broker   string
+	Username string
+	Password string
+	ClientID string
 }
 
 func Load() (*Config, error) {
@@ -41,6 +49,12 @@ func Load() (*Config, error) {
 		JWT: JWTConfig{
 			Secret:      getEnv("JWT_SECRET", "change-me-in-production"),
 			ExpiryHours: expiryHours,
+		},
+		MQTT: MQTTConfig{
+			Broker:   getEnv("MQTT_BROKER", ""),
+			Username: getEnv("MQTT_USERNAME", ""),
+			Password: getEnv("MQTT_PASSWORD", ""),
+			ClientID: getEnv("MQTT_CLIENT_ID", ""),
 		},
 	}, nil
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/sabih15/TeleOpServer/internal/modules/user"
 	"github.com/sabih15/TeleOpServer/internal/platform/config"
 	"github.com/sabih15/TeleOpServer/internal/platform/database"
+	"github.com/sabih15/TeleOpServer/internal/platform/mqttclient"
 	"github.com/sabih15/TeleOpServer/internal/platform/server"
 )
 
@@ -17,6 +18,7 @@ func InitializeApp() (*server.Server, error) {
 	wire.Build(
 		config.Load,
 		database.NewPostgres,
+		mqttclient.New,
 		user.ProviderSet,
 		tocommands.ProviderSet,
 		provideRouter,
