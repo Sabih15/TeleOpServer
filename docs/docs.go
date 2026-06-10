@@ -99,6 +99,107 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/commands": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "commands"
+                ],
+                "summary": "Query command history for a robot",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Robot ID",
+                        "name": "robot_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start time (RFC3339)",
+                        "name": "from",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "End time (RFC3339)",
+                        "name": "to",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/TOCommands.CommandResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "commands"
+                ],
+                "summary": "Ingest a teleop command",
+                "parameters": [
+                    {
+                        "description": "Command payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/TOCommands.CreateCommandRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/users/me": {
             "get": {
                 "security": [
@@ -159,6 +260,70 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "TOCommands.CommandResponse": {
+            "type": "object",
+            "properties": {
+                "az": {
+                    "type": "number"
+                },
+                "command": {
+                    "type": "string"
+                },
+                "lx": {
+                    "type": "number"
+                },
+                "ly": {
+                    "type": "number"
+                },
+                "msg_id": {
+                    "type": "integer"
+                },
+                "robot_id": {
+                    "type": "integer"
+                },
+                "t1": {
+                    "type": "integer"
+                },
+                "time": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "TOCommands.CreateCommandRequest": {
+            "type": "object",
+            "properties": {
+                "az": {
+                    "type": "number"
+                },
+                "command": {
+                    "type": "string"
+                },
+                "lx": {
+                    "type": "number"
+                },
+                "ly": {
+                    "type": "number"
+                },
+                "msg_id": {
+                    "type": "integer"
+                },
+                "robot_id": {
+                    "type": "integer"
+                },
+                "t1": {
+                    "type": "integer"
+                },
+                "time": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "user.LoginRequest": {
             "type": "object",
             "properties": {

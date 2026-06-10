@@ -6,6 +6,7 @@ package wire
 
 import (
 	"github.com/google/wire"
+	tocommands "github.com/sabih15/TeleOpServer/internal/modules/TOCommands"
 	"github.com/sabih15/TeleOpServer/internal/modules/user"
 	"github.com/sabih15/TeleOpServer/internal/platform/config"
 	"github.com/sabih15/TeleOpServer/internal/platform/database"
@@ -17,6 +18,7 @@ func InitializeApp() (*server.Server, error) {
 		config.Load,
 		database.NewPostgres,
 		user.ProviderSet,
+		tocommands.ProviderSet,
 		provideRouter,
 		server.NewServer,
 	)

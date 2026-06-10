@@ -7,6 +7,7 @@
 package wire
 
 import (
+	"github.com/sabih15/TeleOpServer/internal/modules/TOCommands"
 	"github.com/sabih15/TeleOpServer/internal/modules/user"
 	"github.com/sabih15/TeleOpServer/internal/platform/config"
 	"github.com/sabih15/TeleOpServer/internal/platform/database"
@@ -24,10 +25,16 @@ func InitializeApp() (*server.Server, error) {
 	if err != nil {
 		return nil, err
 	}
-	repository := user.NewRepository(db)
-	service := user.NewService(repository, configConfig)
-	handler := user.NewHandler(service)
-	mux := provideRouter(configConfig, handler)
+	iRepository := user.NewRepository(db)
+	iService := user.NewService(iRepository, configConfig)
+	handler := user.NewHandler(iService)
+	toCommandsIRepository := TOCommands.NewRepository(db)
+	toCommandsIService := TOCommands.NewService(toCommandsIRepository)
+	toCommandsHandler := TOCommands.NewHandler(toCommandsIService)
+	mux, err := provideRouter(configConfig, db, handler, toCommandsHandler)
+	if err != nil {
+		return nil, err
+	}
 	serverServer := server.NewServer(configConfig, mux)
 	return serverServer, nil
 }

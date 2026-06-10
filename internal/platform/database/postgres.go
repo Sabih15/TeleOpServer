@@ -14,5 +14,10 @@ func NewPostgres(cfg *config.Config) (*gorm.DB, error) {
 		return nil, err
 	}
 
+	// Enable TimescaleDB extension
+	if err := db.Exec("CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE").Error; err != nil {
+		return nil, err
+	}
+
 	return db, nil
 }
