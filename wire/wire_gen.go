@@ -42,7 +42,8 @@ func InitializeApp(ctx context.Context) (*server.Server, error) {
 	gpsIRepository := gps.NewRepository(db)
 	gpsIService := gps.NewService(gpsIRepository)
 	gpsConsumer := gps.NewConsumer(client, gpsIService)
-	mux, err := provideRouter(ctx, configConfig, db, client, handler, toCommandsHandler, consumer, gpsConsumer)
+	gpsHandler := gps.NewHandler(gpsIService)
+	mux, err := provideRouter(ctx, configConfig, db, client, handler, toCommandsHandler, consumer, gpsConsumer, gpsHandler)
 	if err != nil {
 		return nil, err
 	}

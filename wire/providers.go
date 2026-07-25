@@ -35,7 +35,7 @@ func MigrateAll(db *gorm.DB) error {
 
 // provideRouter runs migrations then builds the fully configured Chi router.
 // Wire injects *gorm.DB automatically from database.NewPostgres.
-func provideRouter(ctx context.Context, cfg *config.Config, db *gorm.DB, mqtt *mqttclient.Client, userHandler *usermod.Handler, cmdHandler *tocommands.Handler, consumer *tocommands.Consumer, gpsConsumer *gpsmod.Consumer) (*chi.Mux, error) {
+func provideRouter(ctx context.Context, cfg *config.Config, db *gorm.DB, mqtt *mqttclient.Client, userHandler *usermod.Handler, cmdHandler *tocommands.Handler, consumer *tocommands.Consumer, gpsConsumer *gpsmod.Consumer, gpsHandler *gpsmod.Handler) (*chi.Mux, error) {
 	if err := MigrateAll(db); err != nil {
 		return nil, fmt.Errorf("migrations failed: %w", err)
 	}
@@ -54,6 +54,7 @@ func provideRouter(ctx context.Context, cfg *config.Config, db *gorm.DB, mqtt *m
 	r.Route("/api/v1", func(r chi.Router) {
 		usermod.RegisterRoutes(r, cfg, userHandler)
 		tocommands.RegisterRoutes(r, cfg, cmdHandler)
+		gpsmod.RegisterRoutes(r, cfg, gpsHandler)
 	})
 	return r, nil
 }

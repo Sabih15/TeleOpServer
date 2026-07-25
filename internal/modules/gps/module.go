@@ -1,11 +1,21 @@
 package gps
 
 import (
+	"github.com/go-chi/chi/v5"
 	"github.com/google/wire"
+	"github.com/sabih15/TeleOpServer/internal/platform/config"
+	"github.com/sabih15/TeleOpServer/internal/platform/middleware"
 	"gorm.io/gorm"
 )
 
-var ProviderSet = wire.NewSet(NewRepository, NewService, NewConsumer)
+var ProviderSet = wire.NewSet(NewRepository, NewService, NewHandler, NewConsumer)
+
+func RegisterRoutes(r chi.Router, cfg *config.Config, h *Handler) {
+	r.Group(func(r chi.Router) {
+		r.Use(middleware.Auth(cfg))
+		r.Get("/gps", h.GetHistory)
+	})
+}
 
 func Migrate(db *gorm.DB) error {
 	if err := db.AutoMigrate(&GPSReading{}); err != nil {

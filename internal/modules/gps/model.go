@@ -14,3 +14,19 @@ type CreateGPSRequest struct {
 	Latitude  float64 `json:"latitude"`
 	Longitude float64 `json:"longitude"`
 }
+
+type GPSResponse struct {
+	Time      time.Time `json:"time"`
+	RobotID   uint      `json:"robot_id"`
+	Latitude  float64   `json:"latitude"`
+	Longitude float64   `json:"longitude"`
+}
+
+func toGPSResponse(r *GPSReading) GPSResponse {
+	return GPSResponse{
+		Time:      r.Time,
+		RobotID:   r.RobotID,
+		Latitude:  r.Latitude,
+		Longitude: r.Longitude,
+	}
+}
