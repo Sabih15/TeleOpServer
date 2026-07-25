@@ -5,8 +5,11 @@
 package wire
 
 import (
+	"context"
+
 	"github.com/google/wire"
 	tocommands "github.com/sabih15/TeleOpServer/internal/modules/TOCommands"
+	"github.com/sabih15/TeleOpServer/internal/modules/gps"
 	"github.com/sabih15/TeleOpServer/internal/modules/user"
 	"github.com/sabih15/TeleOpServer/internal/platform/config"
 	"github.com/sabih15/TeleOpServer/internal/platform/database"
@@ -14,13 +17,14 @@ import (
 	"github.com/sabih15/TeleOpServer/internal/platform/server"
 )
 
-func InitializeApp() (*server.Server, error) {
+func InitializeApp(ctx context.Context) (*server.Server, error) {
 	wire.Build(
 		config.Load,
 		database.NewPostgres,
 		mqttclient.New,
 		user.ProviderSet,
 		tocommands.ProviderSet,
+		gps.ProviderSet,
 		provideRouter,
 		server.NewServer,
 	)

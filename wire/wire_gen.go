@@ -7,7 +7,9 @@
 package wire
 
 import (
+	"context"
 	"github.com/sabih15/TeleOpServer/internal/modules/TOCommands"
+	"github.com/sabih15/TeleOpServer/internal/modules/gps"
 	"github.com/sabih15/TeleOpServer/internal/modules/user"
 	"github.com/sabih15/TeleOpServer/internal/platform/config"
 	"github.com/sabih15/TeleOpServer/internal/platform/database"
@@ -17,7 +19,7 @@ import (
 
 // Injectors from wire.go:
 
-func InitializeApp() (*server.Server, error) {
+func InitializeApp(ctx context.Context) (*server.Server, error) {
 	configConfig, err := config.Load()
 	if err != nil {
 		return nil, err
@@ -36,7 +38,11 @@ func InitializeApp() (*server.Server, error) {
 	toCommandsIRepository := TOCommands.NewRepository(db)
 	toCommandsIService := TOCommands.NewService(toCommandsIRepository)
 	toCommandsHandler := TOCommands.NewHandler(toCommandsIService)
-	mux, err := provideRouter(configConfig, db, client, handler, toCommandsHandler)
+	consumer := TOCommands.NewConsumer(client, toCommandsIService)
+	gpsIRepository := gps.NewRepository(db)
+	gpsIService := gps.NewService(gpsIRepository)
+	gpsConsumer := gps.NewConsumer(client, gpsIService)
+	mux, err := provideRouter(ctx, configConfig, db, client, handler, toCommandsHandler, consumer, gpsConsumer)
 	if err != nil {
 		return nil, err
 	}

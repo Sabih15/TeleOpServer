@@ -9,7 +9,7 @@ import (
 )
 
 // ProviderSet groups all TOCommands module constructors for Wire.
-var ProviderSet = wire.NewSet(NewRepository, NewService, NewHandler)
+var ProviderSet = wire.NewSet(NewRepository, NewService, NewHandler, NewConsumer)
 
 // Migrate creates the teleop_commands table and converts it to a TimescaleDB hypertable.
 func Migrate(db *gorm.DB) error {
