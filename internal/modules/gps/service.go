@@ -20,7 +20,7 @@ func NewService(repo IRepository) IService {
 
 func (s *service) Record(ctx context.Context, req CreateGPSRequest) error {
 	return s.repo.Save(ctx, &GPSReading{
-		Time:      time.Now().UTC(),
+		Time:      req.Time,
 		RobotID:   req.RobotID,
 		Latitude:  req.Latitude,
 		Longitude: req.Longitude,

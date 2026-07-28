@@ -10,9 +10,10 @@ type GPSReading struct {
 }
 
 type CreateGPSRequest struct {
-	RobotID   uint    `json:"robot_id"`
-	Latitude  float64 `json:"latitude"`
-	Longitude float64 `json:"longitude"`
+	Time      time.Time `json:"time"`
+	RobotID   uint      `json:"robot_id"`
+	Latitude  float64   `json:"latitude"`
+	Longitude float64   `json:"longitude"`
 }
 
 type GPSResponse struct {
