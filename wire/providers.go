@@ -11,6 +11,7 @@ import (
 	"github.com/rs/zerolog/log"
 	tocommands "github.com/sabih15/TeleOpServer/internal/modules/TOCommands"
 	gpsmod "github.com/sabih15/TeleOpServer/internal/modules/gps"
+	playbackmod "github.com/sabih15/TeleOpServer/internal/modules/playback"
 	usermod "github.com/sabih15/TeleOpServer/internal/modules/user"
 	"github.com/sabih15/TeleOpServer/internal/platform/config"
 	"github.com/sabih15/TeleOpServer/internal/platform/mqttclient"
@@ -30,18 +31,22 @@ func MigrateAll(db *gorm.DB) error {
 	if err := gpsmod.Migrate(db); err != nil {
 		return fmt.Errorf("gps migration: %w", err)
 	}
+	if err := playbackmod.Migrate(db); err != nil {
+		return fmt.Errorf("playback migration: %w", err)
+	}
 	return nil
 }
 
 // provideRouter runs migrations then builds the fully configured Chi router.
 // Wire injects *gorm.DB automatically from database.NewPostgres.
-func provideRouter(ctx context.Context, cfg *config.Config, db *gorm.DB, mqtt *mqttclient.Client, userHandler *usermod.Handler, cmdHandler *tocommands.Handler, consumer *tocommands.Consumer, gpsConsumer *gpsmod.Consumer, gpsHandler *gpsmod.Handler) (*chi.Mux, error) {
+func provideRouter(ctx context.Context, cfg *config.Config, db *gorm.DB, mqtt *mqttclient.Client, userHandler *usermod.Handler, cmdHandler *tocommands.Handler, consumer *tocommands.Consumer, gpsConsumer *gpsmod.Consumer, gpsHandler *gpsmod.Handler, playbackConsumer *playbackmod.Consumer, playbackHandler *playbackmod.Handler) (*chi.Mux, error) {
 	if err := MigrateAll(db); err != nil {
 		return nil, fmt.Errorf("migrations failed: %w", err)
 	}
 
 	// Register all MQTT subscriptions before opening the connection.
 	gpsConsumer.Register()
+	playbackConsumer.Register()
 
 	// Start TOCommands consumer — this calls Connect() and blocks until ctx is cancelled.
 	go func() {
@@ -55,6 +60,7 @@ func provideRouter(ctx context.Context, cfg *config.Config, db *gorm.DB, mqtt *m
 		usermod.RegisterRoutes(r, cfg, userHandler)
 		tocommands.RegisterRoutes(r, cfg, cmdHandler)
 		gpsmod.RegisterRoutes(r, cfg, gpsHandler)
+		playbackmod.RegisterRoutes(r, cfg, playbackHandler)
 	})
 	return r, nil
 }

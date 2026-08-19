@@ -10,6 +10,7 @@ import (
 	"context"
 	"github.com/sabih15/TeleOpServer/internal/modules/TOCommands"
 	"github.com/sabih15/TeleOpServer/internal/modules/gps"
+	"github.com/sabih15/TeleOpServer/internal/modules/playback"
 	"github.com/sabih15/TeleOpServer/internal/modules/user"
 	"github.com/sabih15/TeleOpServer/internal/platform/config"
 	"github.com/sabih15/TeleOpServer/internal/platform/database"
@@ -43,7 +44,12 @@ func InitializeApp(ctx context.Context) (*server.Server, error) {
 	gpsIService := gps.NewService(gpsIRepository)
 	gpsConsumer := gps.NewConsumer(client, gpsIService)
 	gpsHandler := gps.NewHandler(gpsIService)
-	mux, err := provideRouter(ctx, configConfig, db, client, handler, toCommandsHandler, consumer, gpsConsumer, gpsHandler)
+	playbackIRepository := playback.NewRepository(db)
+	storage := playback.NewStorage(configConfig)
+	playbackIService := playback.NewService(playbackIRepository, storage)
+	playbackConsumer := playback.NewConsumer(client, playbackIService)
+	playbackHandler := playback.NewHandler(playbackIService)
+	mux, err := provideRouter(ctx, configConfig, db, client, handler, toCommandsHandler, consumer, gpsConsumer, gpsHandler, playbackConsumer, playbackHandler)
 	if err != nil {
 		return nil, err
 	}

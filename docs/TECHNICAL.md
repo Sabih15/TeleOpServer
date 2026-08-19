@@ -77,7 +77,8 @@ internal/
 ├── modules/
 │   ├── user/                  # Auth and user management
 │   ├── TOCommands/            # Teleop command ingestion and history
-│   └── gps/                   # GPS reading ingestion and history
+│   ├── gps/                   # GPS reading ingestion and history
+│   └── playback/              # Low-fps playback data ingestion and history
 │
 └── shared/
     └── events/bus.go          # Inter-module event bus (in-process)
@@ -88,6 +89,7 @@ internal/
 | `user` | Register, login, JWT issuance, profile read and soft-delete. Regular Postgres table with `gorm.Model`. |
 | `TOCommands` | Joystick command ingestion via MQTT and history queries. TimescaleDB hypertable partitioned by `Time`. |
 | `gps` | GPS reading ingestion via MQTT and history queries. TimescaleDB hypertable partitioned by `Time`. |
+| `playback` | Low-fps playback frame ingestion via MQTT (raw binary payload, written to local disk) and history queries over the resulting metadata. TimescaleDB hypertable partitioned by `Time`. |
 
 ### Files inside each module
 
@@ -132,7 +134,7 @@ TimescaleDB (PostgreSQL extension) runs in Docker via `timescale/timescaledb:lat
 | Type | Tables | GORM model | Notes |
 |---|---|---|---|
 | Regular | `users` | Embeds `gorm.Model` | Soft delete via `DeletedAt` |
-| Hypertable | `tele_op_commands`, `gps_readings` | No `gorm.Model` | `Time time.Time` is the partition key |
+| Hypertable | `tele_op_commands`, `gps_readings`, `playback_frames` | No `gorm.Model` | `Time time.Time` is the partition key |
 
 Hypertables cannot use auto-increment integer PKs because TimescaleDB requires the time column in all unique constraints. The `create_hypertable` call uses `if_not_exists => TRUE` so migrations are safe to re-run.
 
@@ -146,6 +148,18 @@ Each module owns its `Migrate(db)`. `MigrateAll()` in `wire/providers.go` calls 
 | `robot_id` | bigint | Indexed |
 | `latitude` | float8 | |
 | `longitude` | float8 | |
+
+### playback_frames table
+
+The raw frame bytes are **not** stored in Postgres — they're written to local disk under
+`PLAYBACK_STORAGE_PATH/<robot_id>/<unix_nano>.bin`. This table holds pointers + metadata only.
+
+| Column | Type | Notes |
+|---|---|---|
+| `time` | timestamptz | Set from source (robot), from the JSON payload's `time` field. Partition key. |
+| `robot_id` | bigint | Indexed. Parsed from the MQTT topic, not the payload. |
+| `storage_path` | text | Filesystem path to the saved frame. |
+| `size_bytes` | bigint | Size of the decoded frame in bytes. |
 
 ### tele_op_commands table
 
@@ -189,6 +203,7 @@ The client uses `CleanSession: false` and QoS 1. On reconnect, the `OnConnectHan
 |---|---|---|---|
 | `teleopserver/robots/+/commands` | Web client | TOCommands | JSON |
 | `teleopserver/robots/+/gps` | Robot | GPS | JSON |
+| `teleopserver/robots/+/playback` | Robot | Playback | JSON — `{time, data}`, `data` is base64-encoded frame bytes. `robot_id` comes from the topic, not the payload. |
 
 ### Environment variables
 
@@ -227,6 +242,7 @@ All routes are under `/api/v1`. Swagger UI at `http://localhost:8080/swagger/ind
 | POST | `/commands` | JWT | Ingest a teleop command (REST fallback) |
 | GET | `/commands?robot_id&from&to` | JWT | Command history for a robot in time range |
 | GET | `/gps?robot_id&from&to` | JWT | GPS history for a robot in time range |
+| GET | `/playback?robot_id&from&to` | JWT | Playback frame metadata (time, storage path, size) for a robot in time range |
 
 ---
 
@@ -286,6 +302,7 @@ MQTT_BROKER=tls://cow.rmq2.cloudamqp.com:8883
 MQTT_USERNAME=<vhost>:<user>
 MQTT_PASSWORD=<password>
 MQTT_CLIENT_ID=teleopserver
+PLAYBACK_STORAGE_PATH=./data/playback
 ```
 
 ### Test MQTT manually

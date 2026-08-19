@@ -259,6 +259,65 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/playback": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "playback"
+                ],
+                "summary": "Query playback frame history for a robot",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Robot ID",
+                        "name": "robot_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start time (RFC3339)",
+                        "name": "from",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "End time (RFC3339)",
+                        "name": "to",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/playback.PlaybackFrameResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/users/me": {
             "get": {
                 "security": [
@@ -394,6 +453,23 @@ const docTemplate = `{
                 },
                 "robot_id": {
                     "type": "integer"
+                },
+                "time": {
+                    "type": "string"
+                }
+            }
+        },
+        "playback.PlaybackFrameResponse": {
+            "type": "object",
+            "properties": {
+                "robot_id": {
+                    "type": "integer"
+                },
+                "size_bytes": {
+                    "type": "integer"
+                },
+                "storage_path": {
+                    "type": "string"
                 },
                 "time": {
                     "type": "string"

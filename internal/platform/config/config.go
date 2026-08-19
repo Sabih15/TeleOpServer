@@ -12,6 +12,7 @@ type Config struct {
 	Database DatabaseConfig
 	JWT      JWTConfig
 	MQTT     MQTTConfig
+	Playback PlaybackConfig
 }
 
 type ServerConfig struct {
@@ -32,6 +33,10 @@ type MQTTConfig struct {
 	Username string
 	Password string
 	ClientID string
+}
+
+type PlaybackConfig struct {
+	StoragePath string
 }
 
 func Load() (*Config, error) {
@@ -55,6 +60,9 @@ func Load() (*Config, error) {
 			Username: getEnv("MQTT_USERNAME", ""),
 			Password: getEnv("MQTT_PASSWORD", ""),
 			ClientID: getEnv("MQTT_CLIENT_ID", ""),
+		},
+		Playback: PlaybackConfig{
+			StoragePath: getEnv("PLAYBACK_STORAGE_PATH", "./data/playback"),
 		},
 	}, nil
 }

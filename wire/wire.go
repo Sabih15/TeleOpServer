@@ -10,6 +10,7 @@ import (
 	"github.com/google/wire"
 	tocommands "github.com/sabih15/TeleOpServer/internal/modules/TOCommands"
 	"github.com/sabih15/TeleOpServer/internal/modules/gps"
+	"github.com/sabih15/TeleOpServer/internal/modules/playback"
 	"github.com/sabih15/TeleOpServer/internal/modules/user"
 	"github.com/sabih15/TeleOpServer/internal/platform/config"
 	"github.com/sabih15/TeleOpServer/internal/platform/database"
@@ -25,6 +26,7 @@ func InitializeApp(ctx context.Context) (*server.Server, error) {
 		user.ProviderSet,
 		tocommands.ProviderSet,
 		gps.ProviderSet,
+		playback.ProviderSet,
 		provideRouter,
 		server.NewServer,
 	)
