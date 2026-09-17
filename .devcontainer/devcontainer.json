@@ -1,0 +1,23 @@
+{
+  "name": "TeleOpServer",
+  "dockerComposeFile": [
+    "../docker-compose.yml",
+    "docker-compose.yml"
+  ],
+  "service": "api",
+  "workspaceFolder": "/workspaces/TeleOpServer",
+  "shutdownAction": "stopCompose",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "golang.go"
+      ],
+      "settings": {
+        "go.useLanguageServer": true,
+        "go.toolsManagement.autoUpdate": true
+      }
+    }
+  },
+  "forwardPorts": [8080],
+  "postCreateCommand": "go mod download && go install github.com/google/wire/cmd/wire@latest && go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest"
+}
